@@ -579,16 +579,159 @@ HTTP状态码列表：
 
 
 # 七、Servlet
-## 1、什么是Servlet？
+## 1、概述
+### 1.1 什么是Servlet？
 - Servlet是一个接口，是运行在Java服务器端的程序，用于接收和响应客户端基于HTTP协议的请求。
 - 如果想实现Servlet的功能，可以通过实现Servlet接口或者继承它的实现类。
 - 核心方法是service()，任何客户端的请求都会经过该方法。
 ![](img/Pasted%20image%2020211129171954.png)
 	
-	## 2、解决了什么问题？
-	用于接收和响应客户端基于HTTP协议的请求。
-	## 3、执行流程
+### 1. 2 解决了什么问题？
+用于接收和响应客户端基于HTTP协议的请求。
+
+### 1.3 执行流程
 Servlet执行过程
 	![](img/Pasted%20image%2020211129210110.png)
 	![](img/Pasted%20image%2020211129212449.png)
 	
+### 1.4 Servlet 关系视图
+![](img/Pasted%20image%2020211129213759.png)
+## 2、使用
+### 2.1 【Servlet的实现方式及生命周期】
+1. 实现Servlet接口，实现所有的抽象方法。该方法支持最大程度的自定义。
+2. 继承GenericServlet抽象类，必须重写service()方法，其它方法可以选择重写。该方法与HTTP协议无关。
+3. ==继承HttpServlet抽象类，需要重写doGet和doPost方法。==该方法表示请求和响应都需要和HTTP协议相关。
+
+#comprehend [理解]**Servlet生命周期**
+```java
+//1.Servlet中声明了五个方法，其中init，service和destory定义了servlet的生命周期
+
+public interface Servlet {  
+	/*
+		在Servlet对象创建时执行，只会执行一次；意味着这个Servlet在服务器中只有一个实例对象 （单例 -- 单一实例）
+	
+		Servlet到底啥时候创建？？？
+
+		默认情况下，是第一次访问该Servlet是创建
+
+		可以通过配置load-on-startup，让该Servlet在服务器启动时就创建
+	*/
+    void init(ServletConfig var1) throws ServletException;  
+  
+ 	ServletConfig getServletConfig();  
+  /*
+  		在访问该Servlet时候执行，可以执行多次（每次访问都会执行）
+  */
+    void service(ServletRequest var1, ServletResponse var2) throws ServletException, IOException;  
+  
+ 	String getServletInfo();  
+  /*
+  		在Servlet销毁时执行，只会执行一次
+  */
+	 void destroy();  
+}
+```
+注意：服务器为了提升用户访问的并发能力，内部采用的是线程池方案，当同时有多个请求访问同一个Servlet时，会同时通过==多个线程==，执行==同一个Servlet对象==的service方法，此时如果在servic方法中对==共享变量进行写操作，会存在线程安全问题==，**切记，不要加锁，不要加锁，不要加锁**；面对这种问题，我们只能规避。对于有写操作的变量，一律采用方法的局部变量。
+
+#think[思考]**为什么HttpServlet抽象类，需要重写doGet和doPost方法？**
+```java
+
+//2. 抽象类GenericServlet实现了Servlet接口，所以需要实现Servlet中的方法
+public abstract class GenericServlet implements Servlet, ServletConfig, Serializable {
+	
+	//3.在GenericServlet抽象类中，只有service()方法是抽象方法，GenericServlet的子类必须要重写service()方法。其它方法并不是抽象方法，可以选择是否重写
+	public abstract void service(ServletRequest var1, ServletResponse var2) throws ServletException, IOException;
+}
+
+/*-------------------------------------------------------------------------------------*/
+//4.抽象类HttpServlet继承了GenericServlet，所以必须要重写service()方法
+public abstract class HttpServlet extends GenericServlet {
+	
+	//5.在service()方法中，先对ServletRequest类型的req和ServletResponse类型的res进行了强转，将其强转成基于HTTP协议的req和resp，然后调用重载的service方()法
+	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {  
+		
+   				 HttpServletRequest request;  
+				 HttpServletResponse response;  
+ 				try {  
+        				request = (HttpServletRequest)req;  
+ 						response = (HttpServletResponse)res;  
+ 					 		} catch (ClassCastException var6) {  
+       			 throw new ServletException(lStrings.getString("http.non_http"));  
+ 					 }  
+  
+    			this.service(request, response);  
+	}
+
+
+		/*6.在该service()方法中：
+				首先获取了请求的方法名称，即请求的方式。请求的方式如下所示有7种，常见的是GET和POST方式。
+				如果是GET或者POST方式，则调用doGet和doPost方法(doGet和doPost方法是一样的)，并将参数进行传递。
+				所以这就是我们为什么要重写doGet和doPost方法。
+		*/
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {  
+    			String method = req.getMethod();  
+			    long lastModified;  
+ 				if (method.equals("GET")) {  
+       				 lastModified = this.getLastModified(req);  
+			    if (lastModified == -1L) {  
+           			 this.doGet(req, resp);  
+				 } else {  
+            		long ifModifiedSince;  
+ 				try {  
+                		ifModifiedSince = req.getDateHeader("If-Modified-Since");  
+ 						} catch (IllegalArgumentException var9) {  
+              			  ifModifiedSince = -1L;  
+ 					 }  
+  
+           		if (ifModifiedSince < lastModified / 1000L * 1000L) {  
+               		 this.maybeSetLastModified(resp, lastModified);  
+ 					 this.doGet(req, resp);  
+ 					} else {  
+               		 resp.setStatus(304);  
+ 				 	 }  
+       			 }  
+   			 } else if (method.equals("HEAD")) {  
+        		lastModified = this.getLastModified(req);  
+ 				this.maybeSetLastModified(resp, lastModified);  
+ 				this.doHead(req, resp);  
+ 			} else if (method.equals("POST")) {  
+       		    this.doPost(req, resp);  
+ 			} else if (method.equals("PUT")) {  
+       		    this.doPut(req, resp);  
+ 			} else if (method.equals("DELETE")) {  
+        		this.doDelete(req, resp);  
+ 			} else if (method.equals("OPTIONS")) {  
+       			 this.doOptions(req, resp);  
+ 			} else if (method.equals("TRACE")) {  
+        		this.doTrace(req, resp);  
+ 			} else {  
+       			 String errMsg = lStrings.getString("http.method_not_implemented");  
+ 				Object[] errArgs = new Object[]{method};  
+ 				errMsg = MessageFormat.format(errMsg, errArgs);  
+ 				resp.sendError(501, errMsg);  
+ 				}  
+			}
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {  
+    				String protocol = req.getProtocol();  
+ 					String msg = lStrings.getString("http.method_get_not_supported");  
+ 					if (protocol.endsWith("1.1")) {  
+        				resp.sendError(405, msg);  
+ 						} else {  
+       					 resp.sendError(400, msg);  
+					 }  
+  
+			}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {  
+    				String protocol = req.getProtocol();  
+ 					String msg = lStrings.getString("http.method_post_not_supported");  
+ 					if (protocol.endsWith("1.1")) {  
+       					 resp.sendError(405, msg);  
+ 					} else {  
+        				resp.sendError(400, msg);  
+ 						}  
+					}
+}
+
+```
