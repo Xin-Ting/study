@@ -1,3 +1,4 @@
+
 [技巧]![](img/Pasted%20image%2020211130091122.png)
 Long、String等都实现了Serializable接口，写成Serializable接口类型会更通用。
 
