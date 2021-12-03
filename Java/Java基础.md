@@ -619,7 +619,7 @@ r.nextInt(n-m+1)+m;
 堆内存用来存放由**new运算符创建的数组或对象**，在堆中分配的内存，由Java虚拟机的**垃圾回收器**来自动管理。
 
 **引用变量**：在堆中创建了一个数组或对象后，同时还在栈中定义一个特殊的变量，让栈中的这个变量的取值等于数组或对象在**堆内存中的首地址**。栈中的这个变量就成了数组或对象的**引用变量**。
-引用变量实际上保存的是数组或对象在堆内存中的**首地址（也成为对象的句柄）**，以后就可以在程序中使用栈的引用变量来访问堆中的数组或对象。引用变量相当于是为数组或对象起的一个名称。
+引用变量实际上保存的是数组或对象在堆内存中的**首地址（也称为对象的句柄）**，以后就可以在程序中使用栈的引用变量来访问堆中的数组或对象。引用变量相当于是为数组或对象起的一个名称。
 
 #think **为什么Java占用内存大？**
 
@@ -856,3 +856,258 @@ public static void main(String[] args) {
 
 思路：
 ![](img/Pasted%20image%2020211203001701.png)
+
+## 3.8 多维数组
+### 3.8.1 二维数组
+声明格式
+```java
+数据类型 [ ] [  ] 数组名 = new 数据类型 [行数] [列数]
+```
+
+对于不规则矩形二维数组，在定义时只需要给出高层维数即可。
+```java
+int [ ] [ ] arr = new int [n] [ ];   //这里只要求了行数是多少，并没有指定列数，因此，每行的列数可以不一样
+```
+
+在二维数组中，若要取得二维数组的行数，只要在数组名后面加上.length属性即可；若要取得数组中每行元素的个数，则需要在数组名后加上该行的下标(索引)，再加上.length即可。
+
+# 4、字符串
+字符串就是一系列字符的序列，在Java中用一对双引号括起来，也是编程中经常用到的数据结构。在Java中无论是字符串常量还是字符串变量都是用类来实现的。
+程序中用到的字符串可以分为两大类：
+一类是创建之后不会再做修改和变动的字符串变量：String。常用于比较、搜索。
+另一类是创建之后允许再做修改的字符串变量：StringBuilder。常用于添加、修改、插入等。
+
+## 4.1 String
+### 4.1.1 概述
+1、String 类在 java.lang 包下，所以使用的时候不需要导包
+
+2、String 类代表字符串，Java 程序中的所有字符串文字（例如“abc”）都被实现为此类的实例也就是说，Java 程序中所有的双引号字符串，都是 String 类的对象
+
+**3、字符串不可变，它们的值在创建后不能被更改**
+
+注意：String这个类比较特殊，打印其对象名的时候，不会出现内存地址，而是该对象记录的真实内容。
+
+### 4.1.2 创建字符串对象的区别对比
+1. 通过构造方法创建：通过new创建的字符串对象，每一次new都会申请一个内存空间，虽然内容相同，但是地址值不同。
+2. **直接赋值方式创建：以""方式给出的字符串，只要字符串的序列相同(顺序和大小写)，无论在程序代码中出现几次，JVM 都只会建立一个String对象，并在字符串池中维护。**
+
+### 4.1.3 字符串的比较
+`==`比较的是基本数据类型：比较的是具体的值；
+`==`比较的是引用数据类型：比较的是对象地址值。
+
+**String类 : public boolean equals(String s) 比较两个字符串内容是否相同、区分大小写**
+```java
+package com.itheima.stringmethod;
+
+public class Demo1Equals {
+    public static void main(String[] args) {
+        String s1 = "abc";
+        String s2 = "ABC";
+        String s3 = "abc";
+
+        // equals : 比较字符串内容, 区分大小写
+        System.out.println(s1.equals(s2));
+        System.out.println(s1.equals(s3));
+
+        // equalsIgnoreCase : 比较字符串内容, 忽略大小写
+        System.out.println(s1.equalsIgnoreCase(s2));
+    }
+}
+
+```
+
+### 4.1.4 String常用方法
+1. ==public boolean equals(Object anObject) 比较字符串的内容，严格区分大小写；==
+2. public boolean equalsIgnoreCase(String anotherString) 比较字符串的内容，忽略大小写；
+3. public int length() 返回此字符串的长度；
+4. public char charAt(int index) 返回指定索引处的 char 值；
+5. public char[] toCharArray() 将字符串拆分为字符数组后返回；
+6. ==public String substring(int beginIndex, int endIndex) 根据开始和结束索引进行截取，得到新的字符串**包含头，不包含尾）**；==
+7. public String substring(int beginIndex) 从传入的索引处截取，截取到末尾，得到新的字符串；
+8. ==public String replace(CharSequence target, CharSequence replacement) 使用新值，将字符串中的旧值替换，得到新的字符串；==
+9. ==public String[] split(String regex) 根据传入的规则切割字符串，得到字符串数组。==
+
+
+
+## 4.2 StringBuilder
+
+### 4.2.1 StringBuilder类概述
+
+**概述 :** StringBuilder 是一个可变的字符串类，我们可以把它看成是一个容器，这里的可变指的是 StringBuilder 对象中的内容是可变的
+
+### 4.2.2 StringBuilder类和String类的区别
+
+- ==**String类：**内容是不可变的==
+- ==**StringBuilder类：**内容是可变的==
+
+### 4.2.3 StringBuilder类的构造方法
+
+**常用的构造方法**
+
+| 方法名                             | 说明                                       |
+| ---------------------------------- | ------------------------------------------ |
+| public StringBuilder()             | 创建一个空白可变字符串对象，不含有任何内容 |
+| public StringBuilder(String   str) | 根据字符串的内容，来创建可变字符串对象     |
+
+### 4.2.4 StringBuilder常用的成员方法
+
+- **添加和反转方法**
+
+  | 方法名                                  | 说明                     |
+  | --------------------------------------- | ------------------------ |
+  | public StringBuilder   append(任意类型) | 添加数据，并返回对象本身 |
+  | public StringBuilder   reverse()        | 返回相反的字符序列       |
+
+- **示例代码**
+
+```java
+public class StringBuilderDemo01 {
+    public static void main(String[] args) {
+        //创建对象
+        StringBuilder sb = new StringBuilder();
+
+        //public StringBuilder append(任意类型)：添加数据，并返回对象本身
+//        StringBuilder sb2 = sb.append("hello");
+//
+//        System.out.println("sb:" + sb);
+//        System.out.println("sb2:" + sb2);
+//        System.out.println(sb == sb2);
+
+//        sb.append("hello");
+//        sb.append("world");
+//        sb.append("java");
+//        sb.append(100);
+
+        //链式编程
+        sb.append("hello").append("world").append("java").append(100);
+
+        System.out.println("sb:" + sb);
+
+        //public StringBuilder reverse()：返回相反的字符序列
+        sb.reverse();
+        System.out.println("sb:" + sb);
+    }
+}
+```
+
+### 4.2.5 StringBuilder和String相互转换【应用】
+
+- **StringBuilder转换为String**
+
+==public String toString()：通过 toString() 就可以实现把 StringBuilder 转换为 String==
+
+- **String转换为StringBuilder**
+
+public StringBuilder(String s)：通过构造方法就可以实现把 String 转换为 StringBuilder
+
+- **示例代码**
+
+```java
+public class StringBuilderDemo02 {
+    public static void main(String[] args) {
+        /*
+        //StringBuilder 转换为 String
+        StringBuilder sb = new StringBuilder();
+        sb.append("hello");
+
+        //String s = sb; //这个是错误的做法
+
+        //public String toString()：通过 toString() 就可以实现把 StringBuilder 转换为 String
+        String s = sb.toString();
+        System.out.println(s);
+        */
+
+        //String 转换为 StringBuilder
+        String s = "hello";
+
+        //StringBuilder sb = s; //这个是错误的做法
+
+        //public StringBuilder(String s)：通过构造方法就可以实现把 String 转换为 StringBuilder
+        StringBuilder sb = new StringBuilder(s);
+
+        System.out.println(sb);
+    }
+}
+```
+
+### 4.2.6 StringBuilder拼接字符串案例
+
+**案例需求 :** 
+
+定义一个方法，把 int 数组中的数据按照指定的格式拼接成一个字符串返回，调用该方法，
+
+并在控制台输出结果。例如，数组为int[] arr = {1,2,3}; ，执行方法后的输出结果为：[1, 2, 3]
+
+**实现步骤 :** 
+
+1. 定义一个 int 类型的数组，用静态初始化完成数组元素的初始化
+2. 定义一个方法，用于把 int 数组中的数据按照指定格式拼接成一个字符串返回。
+       返回值类型 String，参数列表 int[] arr
+3. 在方法中用 StringBuilder 按照要求进行拼接，并把结果转成 String 返回
+4. 调用方法，用一个变量接收结果
+5. 输出结果
+
+**代码实现 :** 
+
+```java
+/*
+    思路：
+        1:定义一个 int 类型的数组，用静态初始化完成数组元素的初始化
+        2:定义一个方法，用于把 int 数组中的数据按照指定格式拼接成一个字符串返回。
+          返回值类型 String，参数列表 int[] arr
+        3:在方法中用 StringBuilder 按照要求进行拼接，并把结果转成 String 返回
+        4:调用方法，用一个变量接收结果
+        5:输出结果
+ */
+public class StringBuilderTest01 {
+    public static void main(String[] args) {
+        //定义一个 int 类型的数组，用静态初始化完成数组元素的初始化
+        int[] arr = {1, 2, 3};
+
+        //调用方法，用一个变量接收结果
+        String s = arrayToString(arr);
+
+        //输出结果
+        System.out.println("s:" + s);
+
+    }
+
+    //定义一个方法，用于把 int 数组中的数据按照指定格式拼接成一个字符串返回
+    /*
+        两个明确：
+            返回值类型：String
+            参数：int[] arr
+     */
+    public static String arrayToString(int[] arr) {
+        //在方法中用 StringBuilder 按照要求进行拼接，并把结果转成 String 返回
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("[");
+
+        for(int i=0; i<arr.length; i++) {
+            if(i == arr.length-1) {
+                sb.append(arr[i]);
+            } else {
+                sb.append(arr[i]).append(", ");
+            }
+        }
+
+        sb.append("]");
+
+        String s = sb.toString();
+
+        return  s;
+    }
+}
+```
+
+
+
+
+# 5、类与对象
+#### 类、方法、成员变量、对象等
+
+# 6、面对对象
+
+
+
