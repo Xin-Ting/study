@@ -1109,5 +1109,5 @@ public class StringBuilderTest01 {
 
 # 6、面对对象
 
-
+![](img/Pasted%20image%2020211204124427.png)
 
