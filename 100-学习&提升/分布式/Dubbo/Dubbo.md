@@ -102,7 +102,7 @@ https://dubbo.apache.org/zh/docs/introduction/
 
 # 4.Dubbo使用
 ## 1.如何使用Dubbo？
-### 1.1 [架构演进](../../Excalidraw/架构演进.md)过程
+### 1.1 [架构演进](../../../500-爱好&兴趣/Excalidraw/架构演进.md)过程
 
 互联网架构特点：三高：①高并发、②高可用、③高可靠(安全)
 
